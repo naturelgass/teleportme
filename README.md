@@ -1,3 +1,5 @@
+Updated for Mojave OS compatibility
+
 Teleportme
 ========
 
