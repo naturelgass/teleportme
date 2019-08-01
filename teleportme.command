@@ -293,6 +293,7 @@ start_receiver() {
     while true; do
         if is_portal_opening_hours; then
             log "Waiting for call from ${CALLER_FACETIME_ID} to open portal."
+            set_volume 1
             play_sound
             exit_facetime
             open_facetime
@@ -301,6 +302,7 @@ start_receiver() {
                 sleep 5 
                 if is_in_call; then
                     log "Call started. Making full screen."
+                    set_volume 10
                     make_fullscreen
                     make_landscape
                     hide_menubar
