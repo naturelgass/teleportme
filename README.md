@@ -1,4 +1,4 @@
-Updated for Mojave OS compatibility
+**! Updated for Mojave OS compatibility !**
 
 Teleportme
 ========
