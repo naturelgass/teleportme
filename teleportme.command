@@ -28,6 +28,9 @@
 # Config Section - Edit for your enivornment.
 #
 
+# Keep Terminal minimized
+printf '\e[2t'
+
 # The Apple ID configured on the 'caller' side logged into FaceTime
 CALLER_FACETIME_ID=endpoint-a-facetime-id@example.com
 
