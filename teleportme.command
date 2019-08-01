@@ -15,6 +15,9 @@
 #   This script automates FaceTime calls between two endpoints
 #   (e.g. offices) during selected time of the day.
 #
+# Updated for Mojave:
+#   Alex Daskalakis - https://github.com/naturelgass/
+#
 # Important: Make sure that the terminal program you use
 #     e.g. Terminal, has permission to control your computer
 #     under Security and Privacy preferences.
@@ -69,13 +72,13 @@ is_portal_opening_hours() {
     day_of_week=$(date -u '+%w')
     hour_of_day=$(date -u '+%H')
 
-    if [[ $OPEN_UTC_DAYS_OF_WEEK != *${day_of_week}* ]]; then 
-        return 1 #false
-    fi
+#    if [[ $OPEN_UTC_DAYS_OF_WEEK != *${day_of_week}* ]]; then 
+#        return 1 #false
+#    fi
 
-    if [[ $OPEN_UTC_HOURS != *${hour_of_day}* ]]; then 
-        return 1 #false
-    fi
+#    if [[ $OPEN_UTC_HOURS != *${hour_of_day}* ]]; then 
+#        return 1 #false
+#    fi
     return 0 #true
 }
 
@@ -151,11 +154,23 @@ hide_menubar() {
 is_in_call() {
     status=$(osascript - << 'EOF'
         tell application "FaceTime" to activate
+        tell application "System Events"
+            tell process "FaceTime"
+                set acceptButton to a reference to (button "Accept" of window 1 of application process "NotificationCenter" of application "System Events")
+                if acceptButton exists then
+                    click acceptButton
+                end if
+            end tell
+        end tell
         tell application "System Events" to tell process "FaceTime"
-            if name of front window contains "with" then
-                set output to "running" 
-                copy output to stdout
-            end if
+            try
+               if name of front window contains "with" then
+                   set output to "running" 
+                   copy output to stdout
+               end if
+            on error err
+               log "There is an Incoming call!"
+            end try
         end tell
 EOF)
     if [[ "$status" = "running" ]] ; then
@@ -190,12 +205,13 @@ setup_auto_accept() {
     #
     # Auto accept calls from remote 
     #
+    
     auto_accept=$(defaults read com.apple.FaceTime AutoAcceptInvitesFrom 2>/dev/null)
 
     if [[ $auto_accept != *${CALLER_FACETIME_ID}* ]] ; then
         log "Adding ${CALLER_FACETIME_ID} to FaceTime auto accept list"
         defaults write com.apple.FaceTime AutoAcceptInvites -bool YES
-        defaults write com.apple.FaceTime AutoAcceptInvitesFrom -array-add "$CALLER_FACETIME_ID"
+        defaults write com.apple.FaceTime AutoAcceptInvitesFrom -array-add "$CALLER_FACETIME_ID"    
     fi
 }
 
@@ -286,6 +302,7 @@ start_receiver() {
                 if is_in_call; then
                     log "Call started. Making full screen."
                     make_fullscreen
+                    make_landscape
                     hide_menubar
                     break 1
                 fi 
