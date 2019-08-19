@@ -158,6 +158,13 @@ is_in_call() {
     status=$(osascript - << 'EOF'
         tell application "FaceTime" to activate
         tell application "System Events"
+
+            try
+                # Press Cancel on the remaining failed call layer
+                click at {1368, 514}
+                #button "Cancel" of window 1 of application process "NotificationCenter" of application "System Events"
+            end try
+
             tell process "FaceTime"
                 set acceptButton to a reference to (button "Accept" of window 1 of application process "NotificationCenter" of application "System Events")
                 if acceptButton exists then
@@ -165,6 +172,7 @@ is_in_call() {
                 end if
             end tell
         end tell
+
         tell application "System Events" to tell process "FaceTime"
             try
                if name of front window contains "with" then
